@@ -1,0 +1,80 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #fffbf7;
+  --foreground: #4a2c2a;
+  --pink-soft: #f8e8ee;
+  --gold: #c9a227;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  margin: 0;
+}
+
+/* Fallback sizing if Tailwind utilities fail to load */
+svg {
+  display: inline-block;
+  vertical-align: middle;
+  max-width: 100%;
+  height: auto;
+}
+
+header svg,
+button svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+a[aria-label="Order on WhatsApp"] {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 9999px;
+  background: #25d366;
+  color: #fff;
+  text-decoration: none;
+}
+
+a[aria-label="Order on WhatsApp"] svg {
+  width: 1.75rem;
+  height: 1.75rem;
+}
+
+nav a {
+  text-decoration: none;
+  color: inherit;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-full bg-gold px-6 py-3 text-sm font-semibold text-chocolate transition hover:bg-gold-light focus:outline-none focus:ring-2 focus:ring-gold focus:ring-offset-2;
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center rounded-full border-2 border-chocolate bg-transparent px-6 py-3 text-sm font-semibold text-chocolate transition hover:bg-pink-soft focus:outline-none focus:ring-2 focus:ring-chocolate focus:ring-offset-2;
+  }
+  .btn-whatsapp {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-[#25D366] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#20BD5A] focus:outline-none focus:ring-2 focus:ring-[#25D366] focus:ring-offset-2;
+  }
+  .section-heading {
+    @apply font-display text-3xl font-semibold text-chocolate md:text-4xl;
+  }
+  .section-subheading {
+    @apply mt-2 text-chocolate-light;
+  }
+}
