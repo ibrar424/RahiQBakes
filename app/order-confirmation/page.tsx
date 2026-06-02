@@ -6,6 +6,7 @@ import { Suspense, useEffect, useState } from "react";
 import { getOrderById, type SavedOrder } from "@/lib/orders";
 import { formatPrice } from "@/lib/utils";
 import { buildWhatsAppUrl, orderConfirmationMessage } from "@/lib/whatsapp";
+import { siteConfig } from "@/lib/site";
 
 function ConfirmationContent() {
   const searchParams = useSearchParams();
@@ -13,12 +14,29 @@ function ConfirmationContent() {
   const emailSent = searchParams.get("emailSent");
   const [order, setOrder] = useState<SavedOrder | null>(null);
   const [copied, setCopied] = useState(false);
+  const [countdown, setCountdown] = useState(3);
+  const [isRedirecting, setIsRedirecting] = useState(true);
 
   useEffect(() => {
     if (orderId) {
       setOrder(getOrderById(orderId) ?? null);
     }
   }, [orderId]);
+
+  const whatsappUrl = order ? buildWhatsAppUrl(orderConfirmationMessage(order)) : "";
+
+  useEffect(() => {
+    if (!order || !whatsappUrl) return;
+
+    if (isRedirecting) {
+      if (countdown > 0) {
+        const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+        return () => clearTimeout(timer);
+      } else {
+        window.location.href = whatsappUrl;
+      }
+    }
+  }, [countdown, isRedirecting, order, whatsappUrl]);
 
   if (!orderId) {
     return (
@@ -34,8 +52,6 @@ function ConfirmationContent() {
   if (!order) {
     return <p className="text-center py-12 text-chocolate-light">Loading order...</p>;
   }
-
-  const whatsappUrl = buildWhatsAppUrl(orderConfirmationMessage(order));
 
   const copyOrderId = () => {
     navigator.clipboard.writeText(order.orderId);
@@ -62,6 +78,21 @@ function ConfirmationContent() {
         {copied ? "Copied!" : "Copy Order ID"}
       </button>
 
+      {isRedirecting && (
+        <div className="mt-6 rounded-2xl bg-pink-soft/30 border border-pink-soft/80 p-4 text-sm text-chocolate flex flex-col items-center gap-2">
+          <p className="font-medium animate-pulse">
+            Redirecting to WhatsApp to confirm your order in {countdown} seconds...
+          </p>
+          <button
+            type="button"
+            onClick={() => setIsRedirecting(false)}
+            className="text-xs text-gold font-semibold underline hover:text-gold-dark"
+          >
+            Cancel automatic redirect
+          </button>
+        </div>
+      )}
+
       <div className="mt-8 rounded-2xl bg-white p-6 text-left shadow-card">
         <h2 className="font-semibold text-chocolate">Order Summary</h2>
         <ul className="mt-4 space-y-2 text-sm">
@@ -82,7 +113,7 @@ function ConfirmationContent() {
 
       {emailSent === "1" && (
         <p className="mt-4 rounded-xl bg-pink-soft/60 p-3 text-sm text-chocolate">
-          Delivery details emailed to <strong>raheela.shahzadi8888@gmail.com</strong>
+          Delivery details emailed to <strong>{siteConfig.orderEmail}</strong>
         </p>
       )}
       {emailSent === "0" && (
