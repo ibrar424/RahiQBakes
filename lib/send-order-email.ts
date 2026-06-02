@@ -14,25 +14,38 @@ async function sendViaWeb3Forms(order: SavedOrder, message: string): Promise<boo
   const accessKey = getWeb3FormsKey();
   if (!accessKey) return false;
 
-  const res = await fetch("https://api.web3forms.com/submit", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-    },
-    body: JSON.stringify({
-      access_key: accessKey,
-      subject: `New Order ${order.orderId} – ${siteConfig.name}`,
-      from_name: `${order.customerName} (${order.mobile})`,
-      name: order.customerName,
-      email: siteConfig.orderEmail,
-      phone: order.mobile,
-      message,
-    }),
-  });
+  try {
+    const res = await fetch("https://api.web3forms.com/submit", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        "Referer": siteConfig.url,
+        "Origin": siteConfig.url,
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+      },
+      body: JSON.stringify({
+        access_key: accessKey,
+        subject: `New Order ${order.orderId} – ${siteConfig.name}`,
+        from_name: `${order.customerName} (${order.mobile})`,
+        name: order.customerName,
+        email: siteConfig.orderEmail,
+        phone: order.mobile,
+        message,
+      }),
+    });
 
-  const data = await res.json();
-  return Boolean(data.success);
+    if (!res.ok) {
+      console.error(`Web3Forms responded with status: ${res.status}`);
+      return false;
+    }
+
+    const data = await res.json();
+    return Boolean(data.success);
+  } catch (error) {
+    console.error("Error sending order via Web3Forms:", error);
+    return false;
+  }
 }
 
 async function sendViaFormSubmit(order: SavedOrder, message: string): Promise<boolean> {
@@ -43,6 +56,9 @@ async function sendViaFormSubmit(order: SavedOrder, message: string): Promise<bo
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
+        "Referer": siteConfig.url,
+        "Origin": siteConfig.url,
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
       },
       body: JSON.stringify({
         _subject: `New Order ${order.orderId} – ${siteConfig.name}`,
