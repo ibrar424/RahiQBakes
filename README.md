@@ -50,12 +50,33 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Build & Deploy
 
+This project is configured to build as a **standalone** node application, making it highly portable. You can deploy it to any hosting provider using one of the following methods:
+
+### Method A: Static & Serverless Platforms (Vercel / Netlify)
+1. Connect this repository to your account on [Vercel](https://vercel.com) or Netlify.
+2. Configure the environment variables (see `.env.local.example`).
+3. Deploy! Next.js will automatically detect and optimize the setup.
+
+### Method B: Virtual Private Servers (VPS) with Node.js
+Deploy using a process manager like **PM2** on any Ubuntu/Linux VPS:
 ```bash
+# 1. Install dependencies and compile
+npm install
 npm run build
-npm start
+
+# 2. Run the compiled standalone server with PM2
+pm2 start .next/standalone/server.js --name "rahiq-bakes" --env PORT=3000
 ```
 
-Deploy to [Vercel](https://vercel.com): connect the repo, set environment variables from `.env.local.example`, and deploy.
+### Method C: Universal Container Platforms (Docker)
+Build and run the project anywhere utilizing the bundled multi-stage Docker configuration (e.g. AWS ECS, GCP Cloud Run, DigitalOcean, Render, Railway, custom VPS):
+```bash
+# Build the container image
+docker build -t rahiq-bakes .
+
+# Start the application container
+docker run -p 3000:3000 --env-file .env.local rahiq-bakes
+```
 
 ## Features
 
